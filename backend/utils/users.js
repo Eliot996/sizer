@@ -29,10 +29,13 @@ async function create(email, password) {
     const encryptedPassword = bcrypt.hashSync(password, saltRounds);
 
     try {
-        const { lastID } = await connection.run("INSERT INTO users (email, password) VALUES (?, ?);", 
+        const [ results ] = await connection.execute("INSERT INTO users (email, password) VALUES (?, ?);", 
         [email, encryptedPassword]);
+
+        const userID = results.insertId;
+
         sendCreateMail(email, password);
-        return lastID;
+        return userID;
     } catch (error) {
         console.log(error)
     }
@@ -57,8 +60,10 @@ function sendCreateMail(email, password) {
 }
 
 async function authenticate(email, password) {
-    const user = await connection.get("SELECT * FROM users WHERE email = ?;", [email]);
-    
+    const [results] = await connection.execute("SELECT * FROM users WHERE email = ?;"
+                      , [email]);
+    const user = results[0]
+
     if (user) {
         if (bcrypt.compareSync(password, user.password)) 
             return user.id;
