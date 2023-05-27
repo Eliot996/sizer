@@ -178,3 +178,6 @@ package
 
 # Database files
 *.db
+
+# Temp files
+tmp
