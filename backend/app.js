@@ -23,33 +23,48 @@ app.use(cors({
 }));
 
 import multer from "multer";
+import path from "path";
 
 app.use("/upload", express.urlencoded({extended: true}));
 
 const storage = multer.diskStorage({
     destination: function(req, file, callback) {
-      callback(null, './tmp/uploads/');
+        callback(null, './tmp/uploads/');
     },
     filename: function (req, file, callback) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-        callback(null, uniqueSuffix + file.originalname.substring(file.originalname.lastIndexOf(".")))
+        const uniquePrefix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+        callback(null, uniquePrefix + path.extname(file.originalname));
     }
-  });
+});
 
-const upload = multer({storage: storage});
+const fileFilter = (req, file, callback) => {
+    const fileTypes = /png|jpg|jpeg/;
+    const fileExtention = path.extname(file.originalname).toLowerCase();
 
-app.post('/upload', upload.single('file'), (req, res) => {
-    if (!req.file) {
-      console.log("No file received");
+    const extname = fileTypes.test(fileExtention);
+    const mimetype = fileTypes.test(file.mimetype);
+    
+    if (extname && mimetype) {
+        callback(null, true);
+    } else {
+        callback("Please only upload images", false);
+    }
+}
+
+const upload = multer({storage, fileFilter});
+
+app.post('/upload', upload.array('files', 12), (req, res) => {
+    if (!req.files) {
+      console.log("No files received");
       return res.send({
         success: false
       });
   
     } else {
-      console.log('file received', req.file.filename);
+      console.log('received', req.files.length, "files");
       return res.send({
         success: true
-      })
+      });
     }
   });
 
