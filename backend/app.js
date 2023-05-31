@@ -56,11 +56,22 @@ app.get("/image/:fileName", async (req, res) => {
   fs.unlink(process.cwd() + "/tmp/downloads/" + fileName, (err) => {if (err) throw err});
 })
 
+function sessionAuthorizer(req, res, next) {
+  if (req.session.userID) {
+    next();
+  } else {
+    res.status(401).send({ message: 'Try logging in first!'})
+  }
+}
+
 import userRouter from "./routes/userRouter.js";
 app.use(userRouter);
 
 import dataRouter from './routes/dataRouter.js';
 app.use(dataRouter);
+
+import shoeRouter from "./routes/shoeRouter.js"
+app.use("/shoes", sessionAuthorizer, shoeRouter);
 
 const PORT = 8080;
 const server = app.listen(PORT, () => console.log("Server is running on", server.address().port));
