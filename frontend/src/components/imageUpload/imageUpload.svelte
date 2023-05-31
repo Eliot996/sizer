@@ -1,15 +1,18 @@
 <script>
-    import {BASE_URL} from "../../store/globalsStore.js";
-
+    /**
+   * @type {string}
+   */
     export let target;
 
     export function send() {
+        console.log(target)
+        return
         const fd = new FormData();
         queuedImagesArray.forEach(file => {
             fd.append("files", file);
         })
 
-        fetch($BASE_URL + target || "/upload", {
+        fetch(target || "/upload", {
             method: "POST",
             body: fd
         })
@@ -20,7 +23,7 @@
 
     // Queued in frontend images
 
-    $: {
+    function onChange() {
         const files = imageInput;
         if (files) {
             for (let i = 0; i < files.length; i++) {
@@ -28,18 +31,6 @@
             }
             imageInput = null;
         }      
-    }
-
-    function inputDrop(event) {
-        event.preventDefault();
-        const files = event.dataTransfer.files;
-        for (let i = 0; i < files.length; i++) {
-            if (!files[i].type.match("image")) continue
-            
-            if (queuedImagesArray.every(image => image.name !== files[i].name)) {
-                queuedImagesArray = [ ...queuedImagesArray, files[i] ];
-            }
-        }
     }
 
     function deleteQueuedImage(index) {
@@ -53,18 +44,7 @@
     <div class="server-messages"></div>
 </div>
 
-<div class="input-div" on:drop={inputDrop}>
-    <p>Drag and drop images here or <span class="browse">browse</span></p>
-    <input bind:files={imageInput} type="file" accept="image/png, image/jpg, image/jpeg" multiple>
-</div>
-
-<form id="saved-form">
-    <div class="header">
-        <h2>Saved In server</h2>
-        <button type="submit">Delete</button>
-    </div>
-    <div class="saved-div"></div>
-</form>
+<input bind:files={imageInput} on:change={onChange} type="file" accept="image/png, image/jpg, image/jpeg" multiple>
 
 <form id="queued-form">
     <div class="header">
@@ -81,3 +61,13 @@
         {/each}
     </div>
 </form>
+
+<form id="saved-form">
+    <div class="header">
+        <h2>Saved In server</h2>
+        <button type="submit">Delete</button>
+    </div>
+    <div class="saved-div"></div>
+</form>
+
+
