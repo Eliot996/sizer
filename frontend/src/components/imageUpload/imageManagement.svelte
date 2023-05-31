@@ -56,7 +56,8 @@
 
 <form id="queued-form">
     <div class="header">
-        <h3>Queued</h3>
+        <h3>Queued in Frontend</h3>
+        <button type="submit">Upload</button>
     </div>
     <div class="queued-div">
         {#each  queuedImagesArray as image, index }
@@ -68,3 +69,13 @@
         {/each}
     </div>
 </form>
+
+<form id="saved-form">
+    <div class="header">
+        <h2>Saved In server</h2>
+        <button type="submit">Delete</button>
+    </div>
+    <div class="saved-div"></div>
+</form>
+
+
