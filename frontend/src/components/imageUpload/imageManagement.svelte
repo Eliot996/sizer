@@ -3,7 +3,8 @@
    * @type {string}
    */
     export let target;
-
+    export let socket;
+    
     export function send() {
         return new Promise( async (resolve, reject) => {
             const fd = new FormData();
@@ -28,6 +29,15 @@
 
     let queuedImagesArray = [];
     let imageInput;
+    let serverImageArray = ["1685557906141-564782010.png"];
+
+    function getImages() {
+        if (!target) return;
+
+        fetch(target + "/images", {credentials: "include"})
+            .then((response) => response.json())
+            .then((result) => serverImageArray = result);
+    }
 
     // Queued in frontend images
 
@@ -45,19 +55,42 @@
         queuedImagesArray = [...queuedImagesArray.slice(0, index), ...queuedImagesArray.slice(index + 1)]
     }
 
+    async function loadImage(file) {
+        const response = await fetch(target + "/images/" + file, {
+            credentials: "include"
+        });
+
+        const image = await response.blob();
+
+        return URL.createObjectURL(image);
+    }
+
+    function deleteServerImage(index) {
+        const imageToBeDeleted = serverImageArray[index];
+        console.log(imageToBeDeleted)
+        const [brand, name, size] = target.split("/").slice(-3)
+
+        socket.emit("delete image", {image: imageToBeDeleted, brand, name, size})
+    }
+
+    socket.on("deleted image", (data) => {
+        serverImageArray = serverImageArray.filter(image => image !== data.image);
+        console.log(serverImageArray)
+    });
+
 </script>
 
 <div class="header">
     <h2>Images</h2>
     <div class="server-messages"></div>
+    <button on:click={() => deleteServerImage(0)}>hit</button>
 </div>
 
 <input bind:files={imageInput} on:change={onChange} type="file" accept="image/png, image/jpg, image/jpeg" multiple>
 
 <form id="queued-form">
     <div class="header">
-        <h3>Queued in Frontend</h3>
-        <button type="submit">Upload</button>
+        <h3>Queued</h3>
     </div>
     <div class="queued-div">
         {#each  queuedImagesArray as image, index }
@@ -72,10 +105,23 @@
 
 <form id="saved-form">
     <div class="header">
-        <h2>Saved In server</h2>
-        <button type="submit">Delete</button>
+        <h2>Saved on server</h2>
     </div>
-    <div class="saved-div"></div>
+    <div class="saved-div">
+        {#each serverImageArray as image, index }
+            <div class="image">
+                {#await loadImage(image)}
+                    loading
+                {:then url} 
+                    <img src={url} alt="">
+                {:catch error}
+                    system error: {error}
+                {/await}
+                <span on:click={() => deleteServerImage(index)}>&times;</span>
+            </div>
+            <div>{queuedImagesArray}</div>
+        {/each}
+    </div>
 </form>
 
 

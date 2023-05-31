@@ -7,6 +7,10 @@
     import { BASE_URL} from '../store/globalsStore.js';
 
     import toast, { Toaster } from 'svelte-french-toast';
+    import { useNavigate, useLocation } from "svelte-navigator";
+
+    const navigate = useNavigate();
+    const location = useLocation();
 
     let brand, name, size, sendImages;
 
@@ -26,13 +30,17 @@
             const result = await response.json();
             toast.success(result.message)
 
-            toast.promise(sendImages(), {
+            await toast.promise(sendImages(), {
                     loading: 'Saving images',
                     success: 'Images saved',
                     error: 'Could not save, try again later',
             });
+            
+            navigate(`/shoes/${brand}/${name}/${size}`, {
+                state: { from: $location.pathname },
+                replace: true,
+            });
         }
-
     }
 </script>
 
@@ -62,6 +70,5 @@
         <br>
 
         <ImageUpload target={`${$BASE_URL}/shoes/${brand}/${name}/${size}`} bind:send={sendImages} />
-
     </SecretGuard>
 </Route>

@@ -50,4 +50,15 @@ async function getShoeImage(shoe, filename) {
     await fileStore.downloadShoeImage([shoe.brand, shoe.name, shoe.size], filename);
 }
 
-export default {create, uploadImages, getShoeImage, getShoeImages}
+async function deleteImage(shoe, filename) {
+    const shoeID = await getShoeID(shoe);
+
+    let [ results ] = await connection.execute("DELETE FROM `sizer`.`shoe_images` WHERE (`shoeID` = ? AND `imageName` = ?);", 
+    [shoeID, filename]);
+
+    fileStore.deleteShoeImage([shoe.brand, shoe.name, shoe.size]);
+
+
+}
+
+export default {create, uploadImages, getShoeImage, getShoeImages, deleteImage}

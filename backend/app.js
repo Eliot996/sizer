@@ -6,12 +6,13 @@ const app = express();
 app.use(express.json());
 
 import session from "express-session";
-app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false }
-}));
+const sessionMiddleware = session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false }
+})
+app.use(sessionMiddleware);
 
 import helmet from "helmet";
 app.use(helmet());
@@ -21,6 +22,35 @@ app.use(cors({
     credentials: true,
     origin: true
 }));
+
+import http from "http";
+const server = http.createServer(app);
+
+import { Server } from "socket.io";
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["*"]
+    }
+});
+
+const wrap = middleware => (socket, next) => middleware(socket.request, {}, next);
+io.use(wrap(sessionMiddleware));
+
+import shoes from "./utils/shoes.js";
+
+io.on("connection", (socket) => {
+    if (socket.request.session.userID) {
+        console.log("Welcome", socket.request.session.userID);
+    }
+
+    socket.on("delete image", (data) => {
+        //shoes.deleteImage({brand: data.brand, name: data.name, size: data.size}, data.image);
+
+        io.emit("deleted image", {image: data.image})
+    });
+
+});
 
 import fileStore from "./utils/fileStore.js";
 import upload from "./utils/upload.js";
@@ -74,4 +104,4 @@ import shoeRouter from "./routes/shoeRouter.js"
 app.use("/shoes", sessionAuthorizer, shoeRouter);
 
 const PORT = 8080;
-const server = app.listen(PORT, () => console.log("Server is running on", server.address().port));
+server.listen(PORT, () => console.log("Server is running on", server.address().port));

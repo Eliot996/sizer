@@ -140,6 +140,18 @@ async function downloadShoeImage(path, fileName) {
   fs.writeFileSync(process.cwd() + "/tmp/downloads/" + fileName, await streamToBuffer(downloadFileResponse.readableStreamBody));
 }
 
+async function deleteShoeImage(path, fileName) {
+  let directoryClient = shoeShare;
+
+  for(let elem of path) {
+    directoryClient = directoryClient.getDirectoryClient(elem);
+  }
+  const fileClient = directoryClient.getFileClient(fileName)
+
+  const downloadFileResponse = await fileClient.delete();
+  fs.writeFileSync(process.cwd() + "/tmp/downloads/" + fileName, await streamToBuffer(downloadFileResponse.readableStreamBody));
+}
+
   //createShare("footstorage");
   //createDirectory("newshare1685266773191", "help")
   //uploadFile("newshare1685266773191", "newdirectoryhelp", "1685467414054-113661764.png")
@@ -149,4 +161,4 @@ async function downloadShoeImage(path, fileName) {
   //main();
 
 
-  export default {downloadFile, uploadFile, uploadShoeImage, downloadShoeImage}
+  export default {downloadFile, uploadFile, uploadShoeImage, downloadShoeImage, deleteShoeImage}
