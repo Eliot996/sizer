@@ -22,51 +22,39 @@ app.use(cors({
     origin: true
 }));
 
-import multer from "multer";
-import path from "path";
+import fileStore from "./utils/fileStore.js";
+import upload from "./utils/upload.js";
 
-app.use("/upload", express.urlencoded({extended: true}));
-
-const storage = multer.diskStorage({
-    destination: function(req, file, callback) {
-        callback(null, './tmp/uploads/');
-    },
-    filename: function (req, file, callback) {
-        const uniquePrefix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-        callback(null, uniquePrefix + path.extname(file.originalname));
-    }
-});
-
-const fileFilter = (req, file, callback) => {
-    const fileTypes = /png|jpg|jpeg/;
-    const fileExtention = path.extname(file.originalname).toLowerCase();
-
-    const extname = fileTypes.test(fileExtention);
-    const mimetype = fileTypes.test(file.mimetype);
-    
-    if (extname && mimetype) {
-        callback(null, true);
-    } else {
-        callback("Please only upload images", false);
-    }
-}
-
-const upload = multer({storage, fileFilter});
+import fs from "fs";
 
 app.post('/upload', upload.array('files', 12), (req, res) => {
     if (!req.files) {
       console.log("No files received");
+
       return res.send({
         success: false
       });
   
     } else {
-      console.log('received', req.files.length, "files");
-      return res.send({
-        success: true
+      req.files.forEach((image) => {
+        fileStore.uploadFile("newshare1685266773191", "newdirectoryhelp", image.filename);
+        fs.unlink(process.cwd() + "/" + image.path, (err) => {if (err) throw err});
       });
+
+      return res.send({ success: true });
     }
   });
+
+
+app.get("/image/:fileName", async (req, res) => {
+  const fileName = req.params.fileName;
+
+  await fileStore.downloadFile("newshare1685266773191", "newdirectoryhelp", fileName);
+
+  res.sendFile(process.cwd() + "/tmp/downloads/" + fileName);
+
+  fs.unlink(process.cwd() + "/tmp/downloads/" + fileName, (err) => {if (err) throw err});
+})
 
 import userRouter from "./routes/userRouter.js";
 app.use(userRouter);
