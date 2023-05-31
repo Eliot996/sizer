@@ -32,7 +32,7 @@
 <Toaster />
 
 <h1>Welcome</h1>
-To AuthSite
+To Sizer, we aim to help you find fitting shoes, without trying them on!
 {#if !$USER}
 <p>
     Please sign in before continuing
