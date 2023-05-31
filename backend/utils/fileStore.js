@@ -57,6 +57,28 @@ async function main() {
     await fileClient.uploadRange(content, 0, content.byteLength);
     console.log(`Upload file range "${content.byteLength}" to ${file} successfully`);
   }
+
+async function uploadShoeImage(path, image) {
+  let directoryClient = shoeShare;
+
+  for(let elem of path) {
+    directoryClient = directoryClient.getDirectoryClient(elem);
+    try {
+      await directoryClient.create()
+    } catch (e) {
+
+    }
+  }
+
+  const content = fs.readFileSync(process.cwd() + "/" + image.path);
+  const fileClient = directoryClient.getFileClient(image.filename);
+  await fileClient.create(content.byteLength);
+
+  await fileClient.uploadRange(content, 0, content.byteLength);
+  fs.unlink(process.cwd() + "/" + image.path, (err) => {if (err) throw err});
+
+  return true;
+}
   
 async function listFiles(shareName, directoryName) {
 const directoryClient = serviceClient
@@ -107,4 +129,4 @@ async function downloadFile(shareName, directoryName, fileName) {
   //main();
 
 
-  export default {downloadFile, uploadFile}
+  export default {downloadFile, uploadFile, uploadShoeImage}
