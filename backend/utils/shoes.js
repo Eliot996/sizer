@@ -1,4 +1,5 @@
 import connection from "../databases/connection.js";
+import fileStore from "./fileStore.js";
 
 async function getShoeID(shoe) {
     let [ results ] = await connection.execute("SELECT (`ID`) FROM `sizer`.`shoes` WHERE `brand` = ? AND `name` = ? AND `size` = ?;", 
@@ -22,4 +23,19 @@ async function create(shoe) {
     return results.insertId;
 }
 
-export default {create}
+async function uploadImages(shoe, userID, images) {
+    const shoeID = await getShoeID(shoe);
+
+    images.forEach( async (image) => {
+        const result = await fileStore.uploadShoeImage([shoe.brand, shoe.name, shoe.size], image);
+
+        if (result) {
+            const [ results ] = await connection.execute("INSERT INTO `sizer`.`shoe_images` (`shoeID`, `userID`, `imageName`) VALUES (?,?,?);", 
+            [shoeID, userID, image.filename]);
+        }
+    });
+    return true;
+}
+
+
+export default {create, uploadImages}
