@@ -37,5 +37,17 @@ async function uploadImages(shoe, userID, images) {
     return true;
 }
 
+async function getShoeImages(shoe) {
+    const shoeID = await getShoeID(shoe);
+ 
+    let [ results ] = await connection.execute("SELECT (`imageName`) FROM `sizer`.`shoe_images` WHERE `shoeID` = ?", 
+    [shoeID]);
 
-export default {create, uploadImages}
+    return results.map((elem) => elem.imageName);
+}
+
+async function getShoeImage(shoe, filename) {
+    await fileStore.downloadShoeImage([shoe.brand, shoe.name, shoe.size], filename);
+}
+
+export default {create, uploadImages, getShoeImage, getShoeImages}

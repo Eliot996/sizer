@@ -58,28 +58,6 @@ async function main() {
     console.log(`Upload file range "${content.byteLength}" to ${file} successfully`);
   }
 
-async function uploadShoeImage(path, image) {
-  let directoryClient = shoeShare;
-
-  for(let elem of path) {
-    directoryClient = directoryClient.getDirectoryClient(elem);
-    try {
-      await directoryClient.create()
-    } catch (e) {
-
-    }
-  }
-
-  const content = fs.readFileSync(process.cwd() + "/" + image.path);
-  const fileClient = directoryClient.getFileClient(image.filename);
-  await fileClient.create(content.byteLength);
-
-  await fileClient.uploadRange(content, 0, content.byteLength);
-  fs.unlink(process.cwd() + "/" + image.path, (err) => {if (err) throw err});
-
-  return true;
-}
-  
 async function listFiles(shareName, directoryName) {
 const directoryClient = serviceClient
     .getShareClient(shareName)
@@ -120,6 +98,48 @@ async function downloadFile(shareName, directoryName, fileName) {
     fs.writeFileSync(process.cwd() + "/tmp/downloads/" + fileName, await streamToBuffer(downloadFileResponse.readableStreamBody));
 }
 
+
+
+
+
+async function makeDirectoryClientFromPathArray(path, shareClient) {
+  let directoryClient = shareClient;
+
+  for(let elem of path) {
+    directoryClient = directoryClient.getDirectoryClient(elem);
+    try {
+      await directoryClient.create()
+    } catch (e) {
+
+    }
+  }
+}
+
+async function uploadShoeImage(path, image) {
+  let directoryClient = await makeDirectoryClientFromPathArray(path, shoeShare);
+
+  const content = fs.readFileSync(process.cwd() + "/" + image.path);
+  const fileClient = directoryClient.getFileClient(image.filename);
+  await fileClient.create(content.byteLength);
+
+  await fileClient.uploadRange(content, 0, content.byteLength);
+  fs.unlink(process.cwd() + "/" + image.path, (err) => {if (err) throw err});
+
+  return true;
+}
+
+async function downloadShoeImage(path, fileName) {
+  let directoryClient = shoeShare;
+
+  for(let elem of path) {
+    directoryClient = directoryClient.getDirectoryClient(elem);
+  }
+  const fileClient = directoryClient.getFileClient(fileName)
+
+  const downloadFileResponse = await fileClient.download();
+  fs.writeFileSync(process.cwd() + "/tmp/downloads/" + fileName, await streamToBuffer(downloadFileResponse.readableStreamBody));
+}
+
   //createShare("footstorage");
   //createDirectory("newshare1685266773191", "help")
   //uploadFile("newshare1685266773191", "newdirectoryhelp", "1685467414054-113661764.png")
@@ -129,4 +149,4 @@ async function downloadFile(shareName, directoryName, fileName) {
   //main();
 
 
-  export default {downloadFile, uploadFile, uploadShoeImage}
+  export default {downloadFile, uploadFile, uploadShoeImage, downloadShoeImage}
