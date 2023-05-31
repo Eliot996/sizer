@@ -6,14 +6,33 @@
     import ImageUpload from "../components/imageUpload/imageUpload.svelte";
     import { BASE_URL} from '../store/globalsStore.js';
 
+    import toast, { Toaster } from 'svelte-french-toast';
+
     let brand, name, size, sendImages;
 
-    function save() {
-        fetch($BASE_URL + "/shoes", {
+    async function save() {
+        const response = await fetch($BASE_URL + "/shoes", {
             method: "POST",
-            credentials: "include",
-            body: JSON.stringify({brand, name, size})
-        })
+            credentials: "include", 
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify({ brand: brand, name: name, size: size })
+        });
+
+        if (response.status !== 200) {
+            toast.error("something went wrong in the fetch");
+        } else {
+            const result = await response.json();
+            toast.success(result.message)
+
+            toast.promise(sendImages(), {
+                    loading: 'Saving images',
+                    success: 'Images saved',
+                    error: 'Could not save, try again later',
+            });
+        }
+
     }
 </script>
 
@@ -21,6 +40,8 @@
 <Route {path} let:params let:location let:navigate>
     <SecretGuard>
         <slot {params} {location} {navigate} />
+
+        <Toaster />
 
         <h1>Create or upload image for a shoe</h1>
 
@@ -40,7 +61,7 @@
         <input bind:value={size} type="number" name="size" id="size" placeholder=42>
         <br>
 
-        <ImageUpload target={`${$BASE_URL}/${brand}/${name}/${size}`} bind:send={sendImages} />
+        <ImageUpload target={`${$BASE_URL}/shoes/${brand}/${name}/${size}`} bind:send={sendImages} />
 
     </SecretGuard>
 </Route>
