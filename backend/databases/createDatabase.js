@@ -3,12 +3,15 @@ import db from "./connection.js";
 const isDeleteMode = process.argv.findIndex((argument) => argument === "delete_mode") === -1 ? false : true;
 
 if (isDeleteMode) {
-    await db.query('DROP TABLE IF EXISTS `sizer`.`users`;');
     await db.query('DROP TABLE IF EXISTS `sizer`.`shoe_images`;');
     await db.query('DROP TABLE IF EXISTS `sizer`.`shoes`;');
+    await db.query('DROP TABLE IF EXISTS `sizer`.`foot_images`;');
+    await db.query('DROP TABLE IF EXISTS `sizer`.`users`;');
 }
 
 // (DDL)
+
+// USERS
 await db.query(`
 CREATE TABLE \`sizer\`.\`users\` (
     \`id\` INT NOT NULL AUTO_INCREMENT,
@@ -18,6 +21,7 @@ CREATE TABLE \`sizer\`.\`users\` (
     UNIQUE INDEX \`email_UNIQUE\` (\`email\` ASC) VISIBLE);
 `);
 
+// SHOES 
 await db.query("CREATE TABLE `sizer`.`shoes` ( " + 
                 "`id` INT NOT NULL AUTO_INCREMENT, " + 
                 "`brand` VARCHAR(64) NOT NULL," + 
@@ -45,7 +49,23 @@ await db.query("CREATE TABLE `sizer`.`shoe_images` (" +
     "  FOREIGN KEY (`userID`)" + 
     "  REFERENCES `sizer`.`users` (`id`)" + 
     "  ON DELETE NO ACTION" + 
-    "  ON UPDATE NO ACTION);")
+    "  ON UPDATE NO ACTION);");
+
+// FEET
+await db.query("CREATE TABLE `sizer`.`foot_images` (" + 
+    "`id` INT NOT NULL AUTO_INCREMENT," + 
+    "`userID` INT NOT NULL," + 
+    "`side` VARCHAR(5) NOT NULL," + 
+    "`fileName` VARCHAR(50) NOT NULL," + 
+    "PRIMARY KEY (`id`)," + 
+    "INDEX `user_footID_idx` (`userID` ASC) VISIBLE," + 
+    "CONSTRAINT `user_footID`" + 
+    "  FOREIGN KEY (`userID`)" + 
+    "  REFERENCES `sizer`.`users` (`id`)" + 
+    "  ON DELETE NO ACTION" +
+    "  ON UPDATE NO ACTION);");
+
+
 
 // Seeding (DML)
 if (isDeleteMode) {
