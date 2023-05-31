@@ -4,6 +4,7 @@
   import Create from './pages/create.svelte';
   import Home from './pages/home.svelte';
   import CreateShoe from "./pages/createShoe.svelte";
+  import EditShoes from "./pages/editShoes.svelte";
   import { BASE_URL, USER } from './store/globalsStore.js';
 
   export function logout() {
@@ -36,6 +37,9 @@
   </Route>
   <Secret path="/secret" let:location />
   <CreateShoe path="/create-shoe"/>
+  <Route path="/shoes/:brand/:name/:size" let:params>
+    <EditShoes brand={params.brand} name={params.name} size={params.size} />
+  </Route>
 </Router>
 
 
