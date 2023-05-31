@@ -1,13 +1,15 @@
 <script>
-    import {BASE_URL} from "../store/globalsStore.js";
+    import {BASE_URL} from "../../store/globalsStore.js";
 
-    function send() {
+    export let target;
+
+    export function send() {
         const fd = new FormData();
         queuedImagesArray.forEach(file => {
             fd.append("files", file);
         })
 
-        fetch($BASE_URL + "/upload", {
+        fetch($BASE_URL + target || "/upload", {
             method: "POST",
             body: fd
         })
@@ -15,12 +17,6 @@
 
     let queuedImagesArray = [];
     let imageInput;
-    const savedForm = document.getElementById("saved-form");
-    const queuedForm = document.getElementById("queued-form");
-    const savedDiv = document.getElementsByClassName("saved-div");
-    const queuedDiv = document.getElementsByClassName("queued-div");
-    const inpuDiv = document.getElementsByClassName("input-div");
-    const serverMessage = document.getElementsByClassName(".server-message");
 
     // Queued in frontend images
 
@@ -49,10 +45,11 @@
     function deleteQueuedImage(index) {
         queuedImagesArray = [...queuedImagesArray.slice(0, index), ...queuedImagesArray.slice(index + 1)]
     }
+
 </script>
 
 <div class="header">
-    <h2>Image upload</h2>
+    <h2>Images</h2>
     <div class="server-messages"></div>
 </div>
 
@@ -84,6 +81,3 @@
         {/each}
     </div>
 </form>
-
-<button class="button" on:click="{send}">Send</button>
-
