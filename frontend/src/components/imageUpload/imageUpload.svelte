@@ -5,15 +5,25 @@
     export let target;
 
     export function send() {
-        const fd = new FormData();
-        queuedImagesArray.forEach(file => {
-            fd.append("files", file);
-        })
+        return new Promise( async (resolve, reject) => {
+            const fd = new FormData();
+            queuedImagesArray.forEach(file => {
+                fd.append("files", file);
+            });
 
-        fetch(target || "/upload", {
-            method: "POST",
-            body: fd
+            const response = await fetch(target + "/images", {
+                method: "POST",
+                credentials: "include",
+                body: fd
+            });
+
+            if (response.status === 200) {
+                resolve();
+            } else {
+                reject();
+            }
         })
+        
     }
 
     let queuedImagesArray = [];
