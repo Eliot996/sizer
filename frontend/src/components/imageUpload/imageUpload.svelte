@@ -5,8 +5,6 @@
     export let target;
 
     export function send() {
-        console.log(target)
-        return
         const fd = new FormData();
         queuedImagesArray.forEach(file => {
             fd.append("files", file);
