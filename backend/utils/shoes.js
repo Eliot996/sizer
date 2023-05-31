@@ -10,7 +10,7 @@ async function getShoeID(shoe) {
 }
 
 async function create(shoe) {
-    const shoeID = getShoeID(shoe);
+    const shoeID = await getShoeID(shoe);
 
     if (shoeID) {
         return shoeID;
