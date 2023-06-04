@@ -1,6 +1,5 @@
 <script lang="ts">
   import { Router, Link, Route } from "svelte-navigator";
-	import Secret from "./pages/secret.svelte";
   import Create from './pages/create.svelte';
   import Home from './pages/home.svelte';
   import CreateShoe from "./pages/createShoe.svelte";
