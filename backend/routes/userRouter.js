@@ -34,6 +34,33 @@ router.get("/check", async (req, res) => {
 
 router.get("/logout", async (req, res) => {
     req.session.destroy(() => res.send({ message: "logged out"}));
-})
+});
+
+router.get("/profile", async (req, res) => { 
+    if (!req.session.userID) {
+        res.status(401).send({ message: "please login"});
+        return
+    }
+
+    const data = await users.getProfileData(req.session.userID)
+
+    res.send(data);
+});
+
+router.patch("/profile", async (req, res) => {
+    if (!req.session.userID) res.status(401).send({ message: "please login"});
+
+    const results = {};
+
+    if (req.body.email) {
+        results.email = await users.updateEmail(req.session.userID, req.body.email);
+    }
+
+    if (req.body.updatedPassword && req.body.passwordOld) {
+        results.password = await users.updatePassword(req.session.userID, req.body.passwordOld, req.body.updatedPassword)
+    }
+
+    res.send(results)
+});
 
 export default router;

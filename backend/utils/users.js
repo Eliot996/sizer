@@ -72,4 +72,39 @@ async function authenticate(email, password) {
     return undefined;
 }
 
-export default {create, authenticate};
+async function getProfileData(userID) {
+  const [results] = await connection.execute("SELECT id, email FROM users WHERE id = ?;"
+                              , [userID]);
+  const user = results[0];
+  if (user) {
+    return user;
+  } else {
+    return undefined;
+  }
+}
+
+async function updateEmail(userID, email) {
+  const [results] = await connection.execute("UPDATE `sizer`.`users` SET `email` = ? WHERE (`id` = ?);"
+                              , [email, userID]);
+  return email;
+}
+
+async function updatePassword(userID, password, newPassword) {
+  const profile = await getProfileData(userID);
+  if (!profile) {
+    return "not changed";
+  }
+
+  if (!await authenticate(profile.email, password)) {
+    return "not changed";
+  }
+
+  const encryptedPassword = bcrypt.hashSync(newPassword, saltRounds);
+
+  const [results] = await connection.execute("UPDATE `sizer`.`users` SET `password` = ? WHERE (`id` = ?);"
+                              , [encryptedPassword, userID]);
+  
+  return true;
+}
+
+export default {create, authenticate, getProfileData, updateEmail, updatePassword};
