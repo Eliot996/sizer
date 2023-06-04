@@ -1,4 +1,6 @@
 <script>
+  import { onMount } from "svelte";
+
     /**
    * @type {string}
    */
@@ -29,10 +31,13 @@
 
     let queuedImagesArray = [];
     let imageInput;
-    let serverImageArray = ["1685557906141-564782010.png"];
+    let serverImageArray = [];
 
     function getImages() {
-        if (!target) return;
+        if (!target) {
+            console.log("target not set")
+            return
+        }
 
         fetch(target + "/images", {credentials: "include"})
             .then((response) => response.json())
@@ -78,12 +83,16 @@
         console.log(serverImageArray)
     });
 
+    onMount(() => {
+        getImages();
+    })
+
 </script>
 
 <div class="header">
     <h2>Images</h2>
     <div class="server-messages"></div>
-    <button on:click={() => deleteServerImage(0)}>hit</button>
+    <button on:click={getImages}>hit</button>
 </div>
 
 <input bind:files={imageInput} on:change={onChange} type="file" accept="image/png, image/jpg, image/jpeg" multiple>
