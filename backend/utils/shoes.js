@@ -76,9 +76,7 @@ async function deleteImage(shoe, filename) {
     let [ results ] = await connection.execute("DELETE FROM `sizer`.`shoe_images` WHERE (`shoeID` = ? AND `imageName` = ?);", 
     [shoeID, filename]);
 
-    fileStore.deleteShoeImage([shoe.brand, shoe.name, shoe.size]);
-
-
+    fileStore.deleteShoeImage([shoe.brand, shoe.name, shoe.size], filename);
 }
 
 export default {create, uploadImages, getAll, getShoeImage, getShoeImages, deleteImage}
