@@ -63,7 +63,7 @@
 
 .preview img {
     width: 100%;
-    height: 70%;
+    max-height: 70%;
     border-radius: 10px;
 }
 </style>
