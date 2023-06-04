@@ -45,7 +45,7 @@ io.on("connection", (socket) => {
     }
 
     socket.on("delete image", (data) => {
-        //shoes.deleteImage({brand: data.brand, name: data.name, size: data.size}, data.image);
+        shoes.deleteImage({brand: data.brand, name: data.name, size: data.size}, data.image);
 
         io.emit("deleted image", {image: data.image})
     });
