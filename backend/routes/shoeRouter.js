@@ -35,13 +35,22 @@ router.get("/:brand/:name/:size/images", async (req, res) => {
 });
 
 router.get("/:brand/:name/:size/images/:filename", async (req, res) => {
+    if (!req.params.filename || req.params.filename == "null") {
+        res.sendStatus(404);
+        return;
+    }
+
     const shoe = {brand: req.params.brand, name: req.params.name, size: req.params.size };
 
     await shoes.getShoeImage(shoe, req.params.filename);
 
     try {
-        res.sendFile(process.cwd() + "/tmp/downloads/" + req.params.filename);
-        fs.unlink(process.cwd() + "/tmp/downloads/" + req.params.filename, (err) => {if (err) throw err});
+        res.sendFile(process.cwd() + "/tmp/downloads/" + req.params.filename, (err) => {
+            if (err) {
+                res.sendStatus(404);            
+            }
+            fs.unlink(process.cwd() + "/tmp/downloads/" + req.params.filename, (err) => {if (err) throw err});
+        });
     } catch (error) {
         res.sendStatus(404);
     }
