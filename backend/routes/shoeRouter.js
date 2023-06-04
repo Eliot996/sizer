@@ -13,6 +13,12 @@ router.post('/', async (req, res, next) => {
     res.send({message: "created or found shoe", shoeID});
 });
 
+router.get("/", async (req, res) => {
+    const shoeList = await shoes.getAll();
+
+    res.send(shoeList);
+});
+
 router.post("/:brand/:name/:size/images", upload.array("files", 12), async (req, res) => {
     const shoe = {brand: req.params.brand, name: req.params.name, size: req.params.size };
 
