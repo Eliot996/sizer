@@ -11,7 +11,7 @@
     export let brand, name, size;
 </script>
 
-    <!--<SecretGuard>-->
+    <SecretGuard>
 
         <h1>{brand} {name}</h1>
         <h3>{size}</h3>
@@ -20,4 +20,4 @@
 
         <ImageManagement target={`${$BASE_URL}/shoes/${brand}/${name}/${size}`} bind:socket={socket} bind:send={sendImages}/>
 
-    <!--</SecretGuard>-->
+    </SecretGuard>
