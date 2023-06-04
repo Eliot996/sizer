@@ -186,6 +186,72 @@ async function deleteShoeImage(path, fileName) {
   await fileClient.delete();
 }
 
+
+async function downloadFootImage(userID, fileName) {
+  const shareClient = serviceClient.getShareClient(footShareName);
+
+  const directoryClient = shareClient.getDirectoryClient(String(userID));
+  if (!await directoryClient.exists()) {
+    console.log("user directory not found", userID);
+    return
+  }
+
+  const fileClient = directoryClient.getFileClient(fileName)
+
+  try{
+    const downloadFileResponse = await fileClient.download();
+    fs.writeFileSync(process.cwd() + "/tmp/downloads/" + fileName, await streamToBuffer(downloadFileResponse.readableStreamBody));
+  } catch (error) {
+    console.log("error happend", error)
+  }
+}
+
+async function uploadFootImage(userID, image) {
+
+  if (!image) {
+    console.log("image not found", image);
+    return
+  }
+
+  const share = serviceClient.getShareClient(footShareName);
+  const directoryClient = share.getDirectoryClient(String(userID));
+
+    if (!await directoryClient.exists()) {
+      //console.log("directory for", elem, "not found, trying to create");
+      try {
+        await directoryClient.create();
+      } catch (e) {
+        //console.log("directory failed create:", e)
+      }
+      if (await directoryClient.exists()) {
+        //console.log("created", elem)
+      }
+    }
+
+  const content = fs.readFileSync(process.cwd() + "/" + image.path);
+  const fileClient = await directoryClient.getFileClient(image.filename);
+  await fileClient.create(content.byteLength);
+
+  await fileClient.uploadRange(content, 0, content.byteLength);
+  fs.unlink(process.cwd() + "/" + image.path, (err) => {if (err) throw err});
+
+  return true;
+}
+
+async function deleteFootImage(userID, fileName) {
+  const shareClient = serviceClient.getShareClient(footShareName);
+
+  const directoryClient = shareClient.getDirectoryClient(String(userID));
+  if (!await directoryClient.exists()) {
+    console.log("user directory not found", userID);
+    return
+  }
+
+  const fileClient = directoryClient.getFileClient(fileName);
+
+  await fileClient.delete();
+}
+
   //createShare("footstorage");
   //createDirectory("newshare1685266773191", "help")
   //uploadFile("newshare1685266773191", "newdirectoryhelp", "1685467414054-113661764.png")
@@ -197,4 +263,13 @@ async function deleteShoeImage(path, fileName) {
   //downloadShoeImage(["ælafjskkdfl", "alskdjfkka", "1123"], "1685893985071-197998688.jpg")
 
 
-  export default {downloadFile, uploadFile, uploadShoeImage, downloadShoeImage, deleteShoeImage}
+  export default {
+    downloadFile, 
+    uploadFile, 
+    uploadShoeImage, 
+    downloadShoeImage, 
+    deleteShoeImage, 
+    downloadFootImage,
+    uploadFootImage,
+    deleteFootImage
+  }

@@ -7,7 +7,7 @@
     export let target;
     export let socket;
     
-    export function send() {
+    export function send(userID) {
         return new Promise( async (resolve, reject) => {
             const fd = new FormData();
             queuedImagesArray.forEach(file => {
@@ -24,10 +24,17 @@
                 queuedImagesArray = [];
                 setTimeout(() => getImages(), 500);
 
-                const [brand, name, size] = target.split("/").slice(-3);
-                deleteArray.forEach(image => {
-                    socket.emit("delete image", {image: image, brand, name, size})
-                });
+                if (target.includes("profile") && userID) {
+                    deleteArray.forEach(image => {
+                        socket.emit("delete image", {image: image, userID: userID})
+                    });
+                } else {
+                    const [brand, name, size] = target.split("/").slice(-3);
+                    deleteArray.forEach(image => {
+                        socket.emit("delete image", {image: image, brand, name, size})
+                    });
+                }
+                
 
                 resolve();
             } else {

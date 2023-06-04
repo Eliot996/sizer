@@ -1,6 +1,7 @@
 import dotenv from "dotenv/config";
 import bcrypt from "bcrypt";
 import connection from "../databases/connection.js";
+import fileStore from "./fileStore.js";
 
 import mailer from "nodemailer";
 /*
@@ -107,4 +108,45 @@ async function updatePassword(userID, password, newPassword) {
   return true;
 }
 
-export default {create, authenticate, getProfileData, updateEmail, updatePassword};
+async function getImages(userID) {
+  let [ results ] = await connection.execute("SELECT (`fileName`) FROM `sizer`.`foot_images` WHERE `userID` = ?", 
+    [userID]);
+
+    return results.map((elem) => elem.fileName);
+}
+
+async function getImage(userID, filename) {
+  await fileStore.downloadFootImage(userID, filename);
+}
+
+async function uploadImages(userID, images) {
+    images.forEach( async (image) => {
+        const result = await fileStore.uploadFootImage(userID, image);
+
+        if (result) {
+            const [ results ] = await connection.execute("INSERT INTO `sizer`.`foot_images` (`userID`, `side`, `fileName`) VALUES (?, 'nope', ?);", 
+            [userID, image.filename]);
+        }
+    });
+    return true;
+}
+
+async function deleteImage(userID, filename) {
+  let [ results ] = await connection.execute("DELETE FROM `sizer`.`foot_images` WHERE (`userID` = ? AND `fileName` = ?);", 
+  [userID, filename]);
+
+  await fileStore.deleteFootImage(userID, filename);
+}
+
+
+export default {
+  create, 
+  authenticate, 
+  getProfileData, 
+  updateEmail, 
+  updatePassword, 
+  getImages, 
+  getImage,
+  uploadImages,
+  deleteImage
+};

@@ -38,6 +38,7 @@ const wrap = middleware => (socket, next) => middleware(socket.request, {}, next
 io.use(wrap(sessionMiddleware));
 
 import shoes from "./utils/shoes.js";
+import users from "./utils/users.js";
 
 io.on("connection", (socket) => {
     if (socket.request.session.userID) {
@@ -45,10 +46,15 @@ io.on("connection", (socket) => {
     }
 
     socket.on("delete image", (data) => {
-        shoes.deleteImage({brand: data.brand, name: data.name, size: data.size}, data.image);
+        if (data.brand) {
+          shoes.deleteImage({brand: data.brand, name: data.name, size: data.size}, data.image);
+          io.emit("deleted image", {image: data.image});
+        } else {
+          users.deleteImage(data.userID, data.image);
+          socket.emit("deleted image", {image: data.image})
+        }
 
-        io.emit("deleted image", {image: data.image})
-    });
+     });
 
 });
 

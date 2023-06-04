@@ -25,7 +25,7 @@
     }
 
     async function save() {
-        sendImages();
+        sendImages(profile.id);
 
         const updateObject = {};
 
@@ -96,7 +96,7 @@
         <br>
         <br>
 
-        <ImageManagement target={`${$BASE_URL}/profile/images`} bind:socket={socket} bind:send={sendImages}/>
+        <ImageManagement target={`${$BASE_URL}/profile`} bind:socket={socket} bind:send={sendImages}/>
 
     </SecretGuard>
 </Route>
