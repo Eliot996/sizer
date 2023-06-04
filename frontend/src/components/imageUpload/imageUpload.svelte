@@ -18,7 +18,7 @@
             });
 
             if (response.status === 200) {
-                resolve();
+                setTimeout(() => resolve(), 500)
             } else {
                 reject();
             }
