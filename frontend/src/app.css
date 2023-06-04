@@ -144,6 +144,7 @@ button:focus-visible {
 .saved-div .image,
 .queued-div .image {
   height: 150px;
+  width: 20vw;
   border-radius: 5px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
   overflow: hidden;
