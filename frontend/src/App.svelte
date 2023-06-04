@@ -5,6 +5,7 @@
   import Home from './pages/home.svelte';
   import CreateShoe from "./pages/createShoe.svelte";
   import EditShoes from "./pages/editShoes.svelte";
+  import BrowseShoes from "./pages/browseShoes.svelte";
   import { BASE_URL, USER } from './store/globalsStore.js';
 
   export function logout() {
@@ -20,8 +21,8 @@
     <Link to="/create-user" class="link-button">Create new user</Link>
     {/if}
     {#if $USER}
-      <Link to="/secret" class="link-button">Secret</Link>
-      <Link to="/create-shoe" class="link-button">Create shoe</Link>
+      <Link to="/shoes" class="link-button">Browse shoes</Link>
+      <Link to="/shoes/create" class="link-button">Create shoe</Link>
       <span class="link-button" on:click={logout}>logout</span>
     {/if}
   </nav>
@@ -35,8 +36,8 @@
       <Create />
     </div>
   </Route>
-  <Secret path="/secret" let:location />
-  <CreateShoe path="/create-shoe"/>
+  <CreateShoe path="/shoes/create"/>
+  <BrowseShoes path="/shoes"/>
   <Route path="/shoes/:brand/:name/:size" let:params>
     <EditShoes brand={params.brand} name={params.name} size={params.size} />
   </Route>

@@ -25,7 +25,7 @@
         
         const result = await response.json();
         $USER = result.userID;
-        navigate('/secret');
+        navigate('/shoes');
     }
 </script>
 
