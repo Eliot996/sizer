@@ -177,15 +177,13 @@ async function downloadShoeImage(path, fileName) {
 }
 
 async function deleteShoeImage(path, fileName) {
-  let directoryClient = serviceClient.getShareClient(shoeShareName);;
+  const shareClient = serviceClient.getShareClient(shoeShareName);
 
-  for(let elem of path) {
-    directoryClient = directoryClient.getDirectoryClient(elem);
-  }
-  const fileClient = directoryClient.getFileClient(fileName)
+  const directoryClient = await makeDirectoryClientFromPathArray(path, shareClient);
 
-  const downloadFileResponse = await fileClient.delete();
-  fs.writeFileSync(process.cwd() + "/tmp/downloads/" + fileName, await streamToBuffer(downloadFileResponse.readableStreamBody));
+  const fileClient = directoryClient.getFileClient(fileName);
+
+  await fileClient.delete();
 }
 
   //createShare("footstorage");
