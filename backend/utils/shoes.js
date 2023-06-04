@@ -10,6 +10,26 @@ async function getShoeID(shoe) {
     }
 }
 
+async function getAll() {
+    const [ results ] = await connection.execute("SELECT s.id, s.brand, s.name, s.size, i.imageName " + 
+                                                "FROM sizer.shoes s " + 
+                                                "LEFT JOIN sizer.shoe_images i ON s.id = i.shoeID");
+
+    const shoes = results.filter((value, index, array) => {
+        if (index === 0) return true;
+
+        const previous = array[index - 1];
+
+        if (previous.id === value.id) {
+            return false;
+        } else {
+            return true;
+        }
+    });
+
+    return shoes;
+}
+
 async function create(shoe) {
     const shoeID = await getShoeID(shoe);
 
@@ -61,4 +81,4 @@ async function deleteImage(shoe, filename) {
 
 }
 
-export default {create, uploadImages, getShoeImage, getShoeImages, deleteImage}
+export default {create, uploadImages, getAll, getShoeImage, getShoeImages, deleteImage}
