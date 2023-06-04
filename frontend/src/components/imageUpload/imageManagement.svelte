@@ -98,7 +98,6 @@
 <div class="header">
     <h2>Images</h2>
     <div class="server-messages"></div>
-    <button on:click={getImages}>hit</button>
 </div>
 
 <input bind:files={imageInput} on:change={onChange} type="file" accept="image/png, image/jpg, image/jpeg" multiple>
