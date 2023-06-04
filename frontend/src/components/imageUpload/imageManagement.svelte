@@ -21,6 +21,14 @@
             });
 
             if (response.status === 200) {
+                queuedImagesArray = [];
+                setTimeout(() => getImages(), 500);
+
+                const [brand, name, size] = target.split("/").slice(-3);
+                deleteArray.forEach(image => {
+                    socket.emit("delete image", {image: image, brand, name, size})
+                });
+
                 resolve();
             } else {
                 reject();
@@ -32,6 +40,7 @@
     let queuedImagesArray = [];
     let imageInput;
     let serverImageArray = [];
+    let deleteArray =[];
 
     function getImages() {
         if (!target) {
@@ -72,15 +81,12 @@
 
     function deleteServerImage(index) {
         const imageToBeDeleted = serverImageArray[index];
-        console.log(imageToBeDeleted)
-        const [brand, name, size] = target.split("/").slice(-3)
-
-        socket.emit("delete image", {image: imageToBeDeleted, brand, name, size})
+        deleteArray = [...deleteArray, imageToBeDeleted]
+        serverImageArray = [...serverImageArray.slice(0, index), ...serverImageArray.slice(index + 1)]
     }
 
     socket.on("deleted image", (data) => {
         serverImageArray = serverImageArray.filter(image => image !== data.image);
-        console.log(serverImageArray)
     });
 
     onMount(() => {
