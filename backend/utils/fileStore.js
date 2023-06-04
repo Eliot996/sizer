@@ -59,9 +59,9 @@ async function main() {
   }
 
 async function listFiles(shareName, directoryName) {
-const directoryClient = serviceClient
-    .getShareClient(shareName)
-    .getDirectoryClient(directoryName);
+const shareClient = serviceClient.getShareClient(shareName)
+
+const directoryClient = await makeDirectoryClientFromPathArray(directoryName, shareClient)
 
 let dirIter = directoryClient.listFilesAndDirectories();
 let i = 1;
@@ -106,20 +106,36 @@ async function makeDirectoryClientFromPathArray(path, shareClient) {
   let directoryClient = shareClient;
 
   for(let elem of path) {
-    directoryClient = directoryClient.getDirectoryClient(elem);
-    try {
-      await directoryClient.create()
-    } catch (e) {
+    //console.log(elem);
+    directoryClient = await directoryClient.getDirectoryClient(elem);
 
+    if (!await directoryClient.exists()) {
+      //console.log("directory for", elem, "not found, trying to create");
+      try {
+        await directoryClient.create();
+      } catch (e) {
+        //console.log("directory failed create:", e)
+      }
+      if (await directoryClient.exists()) {
+        //console.log("created", elem)
+      }
     }
   }
+  return directoryClient;
 }
 
 async function uploadShoeImage(path, image) {
-  let directoryClient = await makeDirectoryClientFromPathArray(path, shoeShare);
+
+  if (!image) {
+    console.log("image not found", image);
+    return
+  }
+
+  const share = serviceClient.getShareClient(shoeShareName);
+  let directoryClient = await makeDirectoryClientFromPathArray(path, share);
 
   const content = fs.readFileSync(process.cwd() + "/" + image.path);
-  const fileClient = directoryClient.getFileClient(image.filename);
+  const fileClient = await directoryClient.getFileClient(image.filename);
   await fileClient.create(content.byteLength);
 
   await fileClient.uploadRange(content, 0, content.byteLength);
@@ -129,19 +145,39 @@ async function uploadShoeImage(path, image) {
 }
 
 async function downloadShoeImage(path, fileName) {
-  let directoryClient = shoeShare;
+  const shareClient = serviceClient.getShareClient(shoeShareName);
 
-  for(let elem of path) {
-    directoryClient = directoryClient.getDirectoryClient(elem);
+  const directoryClientBrand = shareClient.getDirectoryClient(path[0]);
+  if (!await directoryClientBrand.exists()) {
+    console.log("brand directory not found", path[0]);
+    return
   }
-  const fileClient = directoryClient.getFileClient(fileName)
 
-  const downloadFileResponse = await fileClient.download();
-  fs.writeFileSync(process.cwd() + "/tmp/downloads/" + fileName, await streamToBuffer(downloadFileResponse.readableStreamBody));
+  const directoryClientName = directoryClientBrand.getDirectoryClient(path[1]);
+  if (!await directoryClientName.exists()) {
+    console.log("name directory not found", path[1]);
+    return
+  }
+
+  const directoryClientSize = directoryClientName.getDirectoryClient(path[2]);
+  if (! await directoryClientSize.exists()) {
+    console.log("size directory not found", path[2]);
+    return
+  }
+  
+
+  const fileClient = directoryClientSize.getFileClient(fileName)
+
+  try{
+    const downloadFileResponse = await fileClient.download();
+    fs.writeFileSync(process.cwd() + "/tmp/downloads/" + fileName, await streamToBuffer(downloadFileResponse.readableStreamBody));
+  } catch (error) {
+    console.log("error happend", error)
+  }
 }
 
 async function deleteShoeImage(path, fileName) {
-  let directoryClient = shoeShare;
+  let directoryClient = serviceClient.getShareClient(shoeShareName);;
 
   for(let elem of path) {
     directoryClient = directoryClient.getDirectoryClient(elem);
@@ -155,10 +191,12 @@ async function deleteShoeImage(path, fileName) {
   //createShare("footstorage");
   //createDirectory("newshare1685266773191", "help")
   //uploadFile("newshare1685266773191", "newdirectoryhelp", "1685467414054-113661764.png")
-  //listFiles("newshare1685266773191", "newdirectoryhelp");
+  //listFiles("shoestorage", ["ælafjskkdfl", "alskdjfkka", "1123"]);
   //downloadFile("newshare1685266773191", "newdirectoryhelp", "1685467414054-113661764.png");
   
   //main();
+
+  //downloadShoeImage(["ælafjskkdfl", "alskdjfkka", "1123"], "1685893985071-197998688.jpg")
 
 
   export default {downloadFile, uploadFile, uploadShoeImage, downloadShoeImage, deleteShoeImage}
