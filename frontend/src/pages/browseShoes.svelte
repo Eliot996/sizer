@@ -16,7 +16,6 @@
 
         shoes = result;
 
-        console.log(shoes);
         return shoes;
     }
 
@@ -48,6 +47,7 @@
     display: flex;
     flex-flow: row wrap;
     justify-content: space-around;
+    width: 100vw;
 }
 
 </style>
