@@ -23,7 +23,7 @@ router.post("/:brand/:name/:size/images", upload.array("files", 12), async (req,
     const shoe = {brand: req.params.brand, name: req.params.name, size: req.params.size };
 
     if (!req.files) {
-        console.log("No files received");
+        console.info("No files received");
     } else {
         const result = await shoes.uploadImages(shoe, req.session.userID, req.files);
   

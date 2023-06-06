@@ -102,7 +102,7 @@ router.get("/profile/images/:filename", async (req, res) => {
 
 router.post("/profile/images", upload.array("files", 12), async (req, res) => {
     if (!req.files) {
-        console.log("No files received");
+        console.info("No files received");
     } else {
         const result = await users.uploadImages(req.session.userID, req.files);
   
