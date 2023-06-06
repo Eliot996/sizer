@@ -42,10 +42,10 @@ router.get("/logout", async (req, res) => {
 router.get("/profile", async (req, res) => { 
     if (!req.session.userID) {
         res.status(401).send({ message: "please login"});
-        return
+        return;
     }
 
-    const data = await users.getProfileData(req.session.userID)
+    const data = await users.getProfileData(req.session.userID);
 
     res.send(data);
 });
@@ -60,11 +60,11 @@ router.patch("/profile", async (req, res) => {
     }
 
     if (req.body.updatedPassword && req.body.passwordOld) {
-        results.password = await users.updatePassword(req.session.userID, req.body.passwordOld, req.body.updatedPassword)
+        results.password = await users.updatePassword(req.session.userID, req.body.passwordOld, req.body.updatedPassword);
     }
 
     if (results.email || results.password) {
-        res.send(results)
+        res.send(results);
     } else {
         res.sendStatus(200);
     }
@@ -73,7 +73,7 @@ router.patch("/profile", async (req, res) => {
 router.get("/profile/images", async (req, res) => {
     if (!req.session.userID) res.status(401).send({ message: "please login"});
 
-    const images = await users.getImages(req.session.userID)
+    const images = await users.getImages(req.session.userID);
 
     res.send(images);
 });
@@ -87,11 +87,13 @@ router.get("/profile/images/:filename", async (req, res) => {
     await users.getImage(req.session.userID, req.params.filename);
 
     try {
+        // eslint-disable-next-line no-undef
         res.sendFile(process.cwd() + "/tmp/downloads/" + req.params.filename, (err) => {
             if (err) {
                 res.sendStatus(404);            
             }
-            fs.unlink(process.cwd() + "/tmp/downloads/" + req.params.filename, (err) => {if (err) throw err});
+            // eslint-disable-next-line no-undef
+            fs.unlink(process.cwd() + "/tmp/downloads/" + req.params.filename, (err) => {if (err) throw err;});
         });
     } catch (error) {
         res.sendStatus(404);
@@ -102,7 +104,7 @@ router.post("/profile/images", upload.array("files", 12), async (req, res) => {
     if (!req.files) {
         console.log("No files received");
     } else {
-        const result = await users.uploadImages(req.session.userID, req.files)
+        const result = await users.uploadImages(req.session.userID, req.files);
   
         if (result) return res.sendStatus(200);
     }

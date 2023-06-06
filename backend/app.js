@@ -46,4 +46,4 @@ import shoeRouter from "./routes/shoeRouter.js";
 app.use("/shoes", sessionAuthorizer, shoeRouter);
 
 const PORT = 8080;
-server.listen(PORT, () => console.log("Server is running on", server.address().port));
+server.listen(PORT, () => console.info("Server is running on", server.address().port));

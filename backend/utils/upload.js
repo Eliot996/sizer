@@ -1,22 +1,23 @@
+/* eslint-disable no-undef */
 import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-// making sure the tmp folders are made 
+// making sure the tmp folders are made
 fs.mkdir(process.cwd() + "/tmp/uploads", {recursive: true}, () => {});
 fs.mkdir(process.cwd() + "/tmp/downloads", {recursive: true}, () => {});
 
 const storage = multer.diskStorage({
-    destination: function(req, file, callback) {
-        callback(null, './tmp/uploads/');
+    destination: function(_req, _file, callback) {
+        callback(null, "./tmp/uploads/");
     },
-    filename: function (req, file, callback) {
-        const uniquePrefix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+    filename: function (_req, file, callback) {
+        const uniquePrefix = Date.now() + "-" + Math.round(Math.random() * 1E9);
         callback(null, uniquePrefix + path.extname(file.originalname));
     }
 });
 
-const fileFilter = (req, file, callback) => {
+const fileFilter = (_req, file, callback) => {
     const fileTypes = /png|jpg|jpeg/;
     const fileExtention = path.extname(file.originalname).toLowerCase();
 
@@ -28,7 +29,7 @@ const fileFilter = (req, file, callback) => {
     } else {
         callback("Please only upload images", false);
     }
-}
+};
 
 const upload = multer({storage, fileFilter, limits: {fileSize: 4 * 1024 * 1024}});
 

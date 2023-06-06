@@ -1,12 +1,13 @@
 import db from "./connection.js";
 
+// eslint-disable-next-line no-undef
 const isDeleteMode = process.argv.findIndex((argument) => argument === "delete_mode") === -1 ? false : true;
 
 if (isDeleteMode) {
-    await db.query('DROP TABLE IF EXISTS `sizer`.`shoe_images`;');
-    await db.query('DROP TABLE IF EXISTS `sizer`.`shoes`;');
-    await db.query('DROP TABLE IF EXISTS `sizer`.`foot_images`;');
-    await db.query('DROP TABLE IF EXISTS `sizer`.`users`;');
+    await db.query("DROP TABLE IF EXISTS `sizer`.`shoe_images`;");
+    await db.query("DROP TABLE IF EXISTS `sizer`.`shoes`;");
+    await db.query("DROP TABLE IF EXISTS `sizer`.`foot_images`;");
+    await db.query("DROP TABLE IF EXISTS `sizer`.`users`;");
 }
 
 // (DDL)
@@ -69,6 +70,6 @@ await db.query("CREATE TABLE `sizer`.`foot_images` (" +
 
 // Seeding (DML)
 if (isDeleteMode) {
-    await db.query(`INSERT INTO users (email, password) VALUES ('email', '$2b$12$DXlxfQ1dzEg4PEhFXv/IXuV6wHv4TFjiKRPCoPuVig1vYfCWPouwq')`);
+    await db.query("INSERT INTO users (email, password) VALUES ('email', '$2b$12$DXlxfQ1dzEg4PEhFXv/IXuV6wHv4TFjiKRPCoPuVig1vYfCWPouwq')");
 }
 

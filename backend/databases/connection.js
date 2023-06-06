@@ -1,14 +1,7 @@
+/* eslint-disable no-undef */
+// eslint-disable-next-line no-unused-vars
 import dotenv from "dotenv/config";
 import mysql from "mysql2/promise";
-
-/*
-const connection = await mysql.createConnection({
-    host: process.env.DATABASE_HOST,
-    database: process.env.DATABASE_DB_NAME,
-    user: process.env.DATABASE_USERNAME,
-    password: process.env.DATABASE_PASSWORD
-});
-*/
 
 const connection = mysql.createPool({
     host: process.env.DATABASE_HOST,
@@ -22,9 +15,7 @@ const connection = mysql.createPool({
     queueLimit: 0,
     enableKeepAlive: true,
     keepAliveInitialDelay: 0
-  });
+});
 
-//const [rows, fields] = await connection.execute("SELECT * FROM users;")
-//console.log(rows);
 
 export default connection;
