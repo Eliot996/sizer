@@ -1,5 +1,4 @@
-// eslint-disable-next-line no-undef
-module.exports = {
+{
     "env": {
         "browser": true,
         "es2021": true
@@ -31,8 +30,8 @@ module.exports = {
         "no-console": [
             "warn",
             {
-                allow: ["info", "warn", "error"]
+                "allow": ["info", "warn", "error"]
             }
         ]
     }
-};
+}
