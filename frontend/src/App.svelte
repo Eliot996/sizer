@@ -25,7 +25,7 @@
       <Link to="/shoes" class="link-button">Browse shoes</Link>
       <Link to="/shoes/create" class="link-button">Create shoe</Link>
       <Link to="/profile" class="link-button">Profile</Link>
-      <span class="link-button" on:click={logout}>logout</span>
+      <span class="link-button" on:click={logout}>Logout</span>
     {/if}
   </nav>
   <Route path="/">
